@@ -73,7 +73,12 @@ export type ExtNode = Node &
     hasSubTree: boolean;
   }>;
 
-export type Connector = readonly [x1: number, y1: number, x2: number, y2: number];
+// TODO tambah disini
+export type ExtraConnectorInfo = {
+  isSpouse?: boolean
+  spouseType?: string
+}
+export type Connector = readonly [x1: number, y1: number, x2: number, y2: number, extras?: ExtraConnectorInfo];
 
 export type RelData = Readonly<{
   canvas: Size;

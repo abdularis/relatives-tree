@@ -2,7 +2,7 @@ import { getParentsX, withType } from '../utils/family';
 import { getUnitX, nodeCount, nodeIds } from '../utils/units';
 import { inAscOrder, max, min, withId, withIds } from '../utils';
 import { HALF_SIZE, NODES_IN_COUPLE, SIZE } from '../constants';
-import { Connector, Family, FamilyType, Unit } from '../types';
+import { Connector, ExtraConnectorInfo, Family, FamilyType, Unit } from '../types';
 
 export const children = (families: readonly Family[]): readonly Connector[] =>
   families.filter(withType(FamilyType.root, FamilyType.child)).reduce<Connector[]>((connectors, family) => {
@@ -34,15 +34,25 @@ export const children = (families: readonly Family[]): readonly Connector[] =>
 
       // between child and child's spouse
       if (nodeCount(unit) === NODES_IN_COUPLE) {
-        connectors.push([left, mY + HALF_SIZE, left + SIZE, mY + HALF_SIZE]);
+        const spouse = unit.nodes[1]?.spouses.find(spouse => spouse.id == unit.nodes[0]?.id)
+        let extras: ExtraConnectorInfo = {
+          isSpouse: spouse != undefined,
+          spouseType: spouse?.type
+        }
+
+        connectors.push([left, mY + HALF_SIZE, left + SIZE, mY + HALF_SIZE, extras]);
       }
 
       // between child and child's side spouse
       else if (nodeCount(unit) === 1 && unit.nodes[0]!.spouses.length) {
         family.children.forEach((nUnit) => {
           if (nUnit.nodes.some(withId(unit.nodes[0]!.spouses[0]!.id))) {
+            let extras: ExtraConnectorInfo = {
+              isSpouse: true,
+              spouseType: nUnit.nodes[0]?.spouses[0]?.type
+            }
             const xX = [left, getUnitX(family, nUnit) + HALF_SIZE].sort(inAscOrder);
-            connectors.push([xX[0]!, mY + HALF_SIZE, xX[1]!, mY + HALF_SIZE]);
+            connectors.push([xX[0]!, mY + HALF_SIZE, xX[1]!, mY + HALF_SIZE, extras]);
           }
         });
       }

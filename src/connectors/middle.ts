@@ -2,14 +2,19 @@ import { inAscOrder, withId } from '../utils';
 import { getUnitX, nodeCount } from '../utils/units';
 import { withType } from '../utils/family';
 import { HALF_SIZE, NODES_IN_COUPLE, SIZE } from '../constants';
-import { Connector, Family, FamilyType, Unit } from '../types';
+import { Connector, ExtraConnectorInfo, Family, FamilyType, Unit } from '../types';
 
 const calcConnectors = (family: Family, families: readonly Family[]) => (connectors: Connector[], unit: Unit) => {
   const pX = getUnitX(family, unit) + HALF_SIZE;
   const pY = family.Y + HALF_SIZE;
 
   if (nodeCount(unit) === NODES_IN_COUPLE) {
-    connectors.push([pX, pY, pX + SIZE, pY]);
+    const spouse = unit.nodes[1]?.spouses.find(spouse => spouse.id == unit.nodes[0]?.id)
+    let extras: ExtraConnectorInfo = {
+      isSpouse: spouse != undefined,
+      spouseType: spouse?.type
+    }
+    connectors.push([pX, pY, pX + SIZE, pY, extras]);
   }
   // TODO: update and refactor
   else if (nodeCount(unit) === 1 && unit.nodes[0]!.spouses.length) {
