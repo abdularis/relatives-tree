@@ -23,8 +23,13 @@ const calcConnectors = (family: Family, families: readonly Family[]) => (connect
       .forEach((other) => {
         other.parents.forEach((parent) => {
           if (parent.nodes.some(withId(unit.nodes[0]!.spouses[0]!.id))) {
+            const spouse = unit.nodes[0]?.spouses[0]
+            let extras: ExtraConnectorInfo = {
+              isSpouse: spouse != undefined,
+              spouseType: spouse?.type
+            }
             const xX = [pX, getUnitX(other, parent) + HALF_SIZE].sort(inAscOrder);
-            connectors.push([xX[0]!, pY, xX[1]!, pY]);
+            connectors.push([xX[0]!, pY, xX[1]!, pY, extras]);
           }
         });
       });
